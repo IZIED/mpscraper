@@ -48,6 +48,12 @@ datos o en los archivos locales no serán tomadas en cuenta por el crawler.
 Se puede omitir el paso de parseo y actualización de la base de datos con la
 opción `--no-merge`.
 
+Un ejemplo que extrae 20 resultados de Mercado Público, de licitaciones ágiles
+con orden de compra emitida de los últimos 3 días:
+```sh
+poetry run main --scrape -l "XX.XXX.XXX-4" -p "XXXXXXXX" -c BO_EMITTED --days -before 3
+```
+
 ## Notas sobre el crawler
 
 El crawler (parte que extrae los datos de Mercado Público) es muy inestable y
