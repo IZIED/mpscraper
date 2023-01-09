@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 from datetime import date, datetime, timedelta
 from pathlib import Path
+import sys
 from typing import Mapping, Set
 
 from loguru import logger
@@ -214,7 +215,7 @@ ap.add_argument(
     type=str,
     help="contraseña a usar para acceder a Mercado Público",
 )
-# ap.add_argument("--database", "-d", type=str)
+ap.add_argument("--database", "-d", type=str, help="string de conexión a la base de datos a usar")
 ap.add_argument(
     "--from",
     "-f",
@@ -267,7 +268,14 @@ def main():
 
     args = ap.parse_args()
 
-    engine = sqlalchemy.create_engine(DATABASE_CONNECTION)
+    con_string = args.database or DATABASE_CONNECTION
+    logger.info(f"Conectado a la base de datos {con_string!r}")
+    try:
+        engine = sqlalchemy.create_engine(con_string)
+    except Exception as err:
+        logger.error(f"Error al conectar a la base de datos {con_string!r}!")
+        logger.error(err)
+        sys.exit(1)
     Session = sqlalchemy.orm.sessionmaker(engine)
     with Session.begin() as session:
         prepare_database(engine, session)

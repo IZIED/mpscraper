@@ -48,6 +48,11 @@ datos o en los archivos locales no serán tomadas en cuenta por el crawler.
 Se puede omitir el paso de parseo y actualización de la base de datos con la
 opción `--no-merge`.
 
+Para especificar la base de datos a usar, se usa la opción `--database`, con
+una string de conexión de SQLAlchemy: `dialecto://user:pass@host:port/database`,
+por ejemplo: `postgresql://admin:1234@localhost:5432/sales`. De no
+especificarse, se utilizará una base de datos SQLite en la carpeta principal.
+
 Un ejemplo que extrae 20 resultados de Mercado Público, de licitaciones ágiles
 con orden de compra emitida de los últimos 3 días:
 ```sh
