@@ -1,0 +1,26 @@
+*.pyc
+__pycache__/
+
+.mypy_cache/
+.pytest_cache/
+
+htmlcov/
+.coverage
+coverage.xml
+
+.?venv/
+.?virtualenv/
+.?env/
+
+# poetry.lock
+
+huellas.toml
+
+.vscode/
+.idea/
+
+*.sqlite3
+
+/log.txt
+/__dump__
+/__workdir__
