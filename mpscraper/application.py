@@ -85,7 +85,7 @@ def scrape(args, ignores: Set[str]):
         logger.error(f"Hubo un error al extraer la lista de resultados: {err!r}")
         crawler.save_dump(DUMP_DIR)
         return None
-    limit = limit or len(result_list)
+    limit = min(limit, len(result_list)) or len(result_list)
     logger.info(f"Se esperan extraer {limit} licitaciones, si no se ignora ninguno")
     ripped = {}
     count = 0

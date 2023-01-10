@@ -110,9 +110,10 @@ class MerPubCrawler(Crawler):
 
         while True:
             main_process()
+            p.wait_for_load_state()
+            if p.query_selector(".swal2-container"):
+                raise Exception("La cuenta aparece como bloqueada")
             try:
-                if p.query_selector(".swal2-title"):
-                    raise Exception("La cuenta aparece como bloqueada")
                 if p.wait_for_selector(".rdbOrganismo", timeout=2500):
                     break
             except TimeoutError:
@@ -138,24 +139,18 @@ class MerPubCrawler(Crawler):
     def fl(self):
         return self.page.frame_locator("#" + self.MAIN_FRAME_NAME)
 
-    def ignore_instructions_modal(self):
+    def inject_instructions_modal_dismisser(self):
         from playwright._impl._api_types import TimeoutError
 
-        try:
-            logger.debug("Tratando de ignorar modal de explicación en búsqueda ágil")
-            self.page.wait_for_load_state()
-            self.f.wait_for_load_state()
-            el = self.f.wait_for_selector(
-                "#modalStepper", state="visible", timeout=1000
-            )
-            self.page.keyboard.down("Escape")
-            if el:
-                self.f.evaluate(
-                    "document.querySelector('#modalStepper')?.remove();"
-                    "document.querySelector('.modal-backdrop')?.remove();"
-                )
-        except TimeoutError:
-            pass
+        logger.debug("Injectando JS para ignorar modal de explicación en búsqueda ágil")
+        self.page.wait_for_load_state()
+        self.f.wait_for_load_state()
+        self.f.evaluate(
+            "setInterval(function () {"
+            "    document.getElementById('fraDetalle')"
+            "        .contentWindow.$('#modalStepper').modal('hide');"
+            "}, 500);"
+        )
         # self.f.evaluate("$('#modalStepper').modal('hide');")
 
     def visit_merpub_section(self, section: MerPubSection):
@@ -166,6 +161,7 @@ class MerPubCrawler(Crawler):
             if p.url == self.HOME_URL:
                 self.login_merpub()
                 self.page.wait_for_load_state()
+            self.inject_instructions_modal_dismisser()
 
         logger.debug(f"Visitando portal de {section!r}")
         match section:
@@ -173,7 +169,6 @@ class MerPubCrawler(Crawler):
                 if self.f.url != self.BUSQUEDA_AGIL_URL:
                     self.fl.get_by_role("link", name="COMPRA ÁGIL").click()
                     p.wait_for_load_state()
-                self.ignore_instructions_modal()
         p.wait_for_load_state()
 
     def crawl_results_from_agil_params(
@@ -185,7 +180,6 @@ class MerPubCrawler(Crawler):
     ) -> AgilResultsCrawlContent | None:
         self.visit_merpub_section(MerPubSection.AGIL)
 
-        self.ignore_instructions_modal()
         logger.debug(
             f"Configurando búsqueda ágil: categoría={status!r}, desde={date_from!r}, hasta={date_until!r}"
         )
@@ -218,7 +212,6 @@ class MerPubCrawler(Crawler):
 
         self.fl.locator("#btnSearchParameter").click()  # "Buscar"
 
-        self.ignore_instructions_modal()
         self.save_dump()
 
         lo = self.fl.locator("#lnkDownloadExcel")  # "Descargar resultados en excel"
@@ -248,7 +241,6 @@ class MerPubCrawler(Crawler):
 
         self.fl.get_by_role("button", name="Buscar ID").click()
         self.f.wait_for_load_state()
-        self.ignore_instructions_modal()
 
         logger.debug("Tratando de entrar a página de contenido de licitación")
         # "Ver detalle" en resultados
