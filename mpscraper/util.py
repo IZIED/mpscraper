@@ -45,14 +45,3 @@ class EntityType(enum.IntEnum):
 class Money:
     amount: decimal.Decimal
     currency: str
-
-
-def save_files_to_dir(dir: str | os.PathLike, files: FileMapping):
-    outfolder = pathlib.Path(dir)
-    outfolder.mkdir(exist_ok=True)
-    for name, contents in files.items():
-        if isinstance(contents, Mapping):
-            save_files_to_dir(outfolder / name, contents)
-        else:
-            newfile = outfolder / name
-            newfile.write_bytes(contents)

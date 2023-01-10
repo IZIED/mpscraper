@@ -34,7 +34,7 @@ class ParseAgilResultModels(TypedDict):
 
 
 def parse_agil_into_db_model(agil: AgilCrawlContents) -> ParseAgilResultModels:
-    """Parsea los contenidos de los archivos extrajidos de una licitación ágil y
+    """Parsea los contenidos de los archivos extraídos de una licitación ágil y
     genera los modelos para la base de datos."""
     import bs4
     import pandas
@@ -236,10 +236,6 @@ def parse_agil_into_db_model(agil: AgilCrawlContents) -> ParseAgilResultModels:
         organization_names=organizations_names,
         organizations=organizations,
     )
-
-
-def merge_models_into_db(session, bid: Bid):
-    session.merge(bid)
 
 
 def text_by_id(soup, ids: Sequence[str]):

@@ -17,6 +17,7 @@ from mpscraper.validators import validate_rut
 
 
 def prepare_database(engine, session):
+    """Prepara la base de datos."""
     from mpscraper.models import Base, init_database
 
     logger.info("Preparando la base de datos")
@@ -28,6 +29,8 @@ def prepare_database(engine, session):
 
 
 def get_ignores(session):
+    """Obtiene los números de las licitaciones a ignorar cuando se
+    extraigan datos de Mercado Público."""
     import sqlalchemy
 
     import mpscraper.models
@@ -40,6 +43,7 @@ def get_ignores(session):
 
 
 def scrape(args, ignores: Set[str]):
+    """Extrae los archivos de licitaciones de Mercado Público."""
     if not args.login or not args.password:
         ap.error("--login y --password son necesarios si se van a extraer datos")
     username = args.login
@@ -143,6 +147,7 @@ def save_files(ripped: Mapping[str, AgilCrawlContents]):
 
 
 def load_files() -> Mapping[str, AgilCrawlContents]:
+    """Carga los archivos locales de licitaciones."""
     tmpdir = Path("./__workdir__")
     tmpdir.mkdir(exist_ok=True)
     ripped: Mapping[str, AgilCrawlContents] = {}
@@ -164,6 +169,7 @@ def load_files() -> Mapping[str, AgilCrawlContents]:
 
 
 def parse(session, agils: Mapping[str, AgilCrawlContents]):
+    """Parsea y crea modelos de archivos extraídos de licitaciones."""
     logger.info(f"Añadiendo modelos de {len(agils)} entradas de licitaciones ágiles")
     count = 0
     for idn, agil in agils.items():
@@ -215,7 +221,9 @@ ap.add_argument(
     type=str,
     help="contraseña a usar para acceder a Mercado Público",
 )
-ap.add_argument("--database", "-d", type=str, help="string de conexión a la base de datos a usar")
+ap.add_argument(
+    "--database", "-d", type=str, help="string de conexión a la base de datos a usar"
+)
 ap.add_argument(
     "--from",
     "-f",

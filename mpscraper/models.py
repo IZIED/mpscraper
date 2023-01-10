@@ -30,6 +30,8 @@ class Base(DeclarativeBase):
 
 
 class WithTimestamps:
+    """Mixin para agregar timestamps a las tablas."""
+
     created_at: Mapped[datetime] = mapped_column(
         server_default=sqlalchemy.sql.functions.now()
     )
@@ -40,6 +42,8 @@ class WithTimestamps:
 
 
 class Currency(Base):
+    """Modelo de una divisa de moneda."""
+
     __tablename__ = "currency"
 
     code: Mapped[str] = mapped_column(String(3), primary_key=True)
@@ -50,6 +54,8 @@ class Currency(Base):
 
 
 class Region(Base):
+    """Modelo de una región."""
+
     __tablename__ = "region"
 
     code: Mapped[int] = mapped_column(unique=True, primary_key=True)
@@ -62,6 +68,8 @@ class Region(Base):
 
 
 class City(Base):
+    """Modelo de una ciudad."""
+
     __tablename__ = "city"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -74,6 +82,8 @@ class City(Base):
 
 
 class Address(Base):
+    """Modelo de una dirección."""
+
     __tablename__ = "address"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -102,6 +112,8 @@ person_organization_table = Table(
 
 
 class Person(WithTimestamps, Base):
+    """Modelo de una persona."""
+
     __tablename__ = _Person_tablename
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -124,6 +136,8 @@ class Person(WithTimestamps, Base):
 
 
 class PersonEmailAddress(Base):
+    """Modelo de un correo electrónico de una persona."""
+
     __tablename__ = "person_email_address"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -137,6 +151,8 @@ class PersonEmailAddress(Base):
 
 
 class PersonPhoneNumber(Base):
+    """Modelo de un número de teléfono de una persona."""
+
     __tablename__ = "entity_phone_number"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -150,6 +166,8 @@ class PersonPhoneNumber(Base):
 
 
 class Organization(WithTimestamps, Base):
+    """Modelo de una organización, para mantener una sola entidad por RUT."""
+
     __tablename__ = _Organization_tablename
 
     rut: Mapped[str] = mapped_column(primary_key=True, unique=True)
@@ -165,6 +183,8 @@ class Organization(WithTimestamps, Base):
 
 
 class OrganizationName(WithTimestamps, Base):
+    """Modelo de un nombre asociado a una organización."""
+
     __tablename__ = "organization_name"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -223,6 +243,8 @@ class Bid(WithTimestamps, Base):
 
 
 class ProductType(Base):
+    """Modelo de tipo de producto de una licitación."""
+
     __tablename__ = "product_type"
 
     code: Mapped[int] = mapped_column(primary_key=True)

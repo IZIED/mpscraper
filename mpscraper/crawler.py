@@ -42,6 +42,8 @@ class MerPubSection(enum.Enum):
 
 
 class Crawler:
+    """Base para un Crawler con Playwright."""
+
     def __init__(self):
         from playwright.sync_api import sync_playwright
 
@@ -86,6 +88,11 @@ class MerPubCrawler(Crawler):
         self.credentials = credentials
 
     def login_merpub(self):
+        """Intenta iniciar sesión en Mercado Público con las credenciales
+        del crawler.
+
+        Reintenta hasta que pueda, o falla en caso de que la cuenta
+        aparezca como bloqueada."""
         from playwright._impl._api_types import TimeoutError
 
         logger.info("Iniciando sesión en Mercado Público")
@@ -130,6 +137,7 @@ class MerPubCrawler(Crawler):
 
     @property
     def f(self):
+        """El frame donde se navega dentro del portal."""
         f = self.page.frame(self.MAIN_FRAME_NAME)
         if not f:
             raise Exception("No se encontró el frame principal")
@@ -137,10 +145,12 @@ class MerPubCrawler(Crawler):
 
     @property
     def fl(self):
+        """Un FrameLocator del frame donde se navega dentro del portal."""
         return self.page.frame_locator("#" + self.MAIN_FRAME_NAME)
 
     def inject_instructions_modal_dismisser(self):
-        from playwright._impl._api_types import TimeoutError
+        """Inyecta un script en la página del portal que trata de quitar
+        el modal de explicación cada 500 ms en el frame correspondiente."""
 
         logger.debug("Injectando JS para ignorar modal de explicación en búsqueda ágil")
         self.page.wait_for_load_state()
@@ -154,6 +164,10 @@ class MerPubCrawler(Crawler):
         # self.f.evaluate("$('#modalStepper').modal('hide');")
 
     def visit_merpub_section(self, section: MerPubSection):
+        """Visita una sección de mercado público.
+
+        Requiere tener la sesión iniciada, por lo que intenta iniciar
+        sesión si no se encuentra con la sesión iniciada."""
         p = self.page
         if p.url != self.PORTAL_URL:
             p.goto(self.PORTAL_URL)
@@ -178,6 +192,9 @@ class MerPubCrawler(Crawler):
         date_until: date,
         status: Literal["*"] | BidStatus = "*",
     ) -> AgilResultsCrawlContent | None:
+        """Realiza una búsqueda en licitaciones ágiles y entrega la lista de resultados.
+
+        Si no se encuentra ningún resultado, no retorna nada."""
         self.visit_merpub_section(MerPubSection.AGIL)
 
         logger.debug(
@@ -234,6 +251,7 @@ class MerPubCrawler(Crawler):
             return None
 
     def crawl_from_agil_idn(self, idn: str) -> AgilCrawlContents | None:
+        """Extrae los contenidos de una licitación buscando a base de su número."""
         logger.debug(f"Descargando datos de licitación ágil: idn={idn}")
         self.visit_merpub_section(MerPubSection.AGIL)
 
